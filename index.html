@@ -1,0 +1,1608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kapi C# – Year 9 | Mission Briefings 1–4</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --accent: #0e9e78;
+      --accent-dark: #0b7d5f;
+      --accent-light: #e6f7f2;
+      --ink: #17160f;
+      --ink-muted: #5c5a52;
+      --bg: #fafaf8;
+      --card: #ffffff;
+      --border: #e8e6df;
+      --success: #0e9e78;
+      --error: #c94c4c;
+      --warn: #c47d1a;
+      --warn-bg: #fdf6e9;
+      --py-bg: #eef3fb;
+      --py-border: #b6c8e8;
+      --boss: #6b3fa0;
+      --boss-bg: #f3eef9;
+      --xp: #e8b84a;
+      --radius: 12px;
+      --shadow: 0 4px 20px rgba(23, 22, 15, 0.06);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+    header {
+      background: var(--ink);
+      color: white;
+      padding: 0.75rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+      flex-wrap: wrap;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      font-weight: 700;
+      font-size: 1.15rem;
+      letter-spacing: -0.02em;
+    }
+    .logo-mark {
+      width: 30px; height: 30px;
+      background: var(--accent);
+      border-radius: 8px;
+      display: grid; place-items: center;
+      font-size: 0.8rem; font-weight: 700; color: white;
+    }
+    .xp-wrap {
+      display: flex; align-items: center; gap: 0.75rem;
+      flex: 1; max-width: 340px; min-width: 180px;
+    }
+    .xp-bar-bg {
+      flex: 1; height: 10px; background: rgba(255,255,255,0.15);
+      border-radius: 999px; overflow: hidden;
+    }
+    .xp-bar-fill {
+      height: 100%; width: 0%;
+      background: linear-gradient(90deg, var(--accent), var(--xp));
+      border-radius: 999px; transition: width 0.4s ease;
+    }
+    .xp-label {
+      font-size: 0.75rem; font-weight: 600; white-space: nowrap;
+      color: #5ee0b8;
+    }
+    .rank-badge {
+      background: rgba(232,184,74,0.2);
+      color: var(--xp);
+      font-size: 0.7rem; font-weight: 700;
+      padding: 0.2rem 0.55rem; border-radius: 999px;
+      text-transform: uppercase; letter-spacing: 0.03em;
+    }
+    .header-right {
+      display: flex; align-items: center; gap: 0.85rem; font-size: 0.8rem;
+    }
+    .header-right a { color: rgba(255,255,255,0.85); text-decoration: none; }
+    .header-right a:hover { color: var(--accent); }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      min-height: calc(100vh - 56px);
+    }
+    nav {
+      background: var(--card);
+      border-right: 1px solid var(--border);
+      padding: 1.25rem 0;
+      position: sticky; top: 56px;
+      height: calc(100vh - 56px);
+      overflow-y: auto;
+    }
+    nav h3 {
+      font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em;
+      color: var(--ink-muted); padding: 0 1.25rem 0.65rem;
+    }
+    .nav-item {
+      display: block; padding: 0.65rem 1.25rem;
+      color: var(--ink); text-decoration: none;
+      font-size: 0.9rem; font-weight: 500;
+      border-left: 3px solid transparent; cursor: pointer; transition: all 0.15s;
+    }
+    .nav-item:hover { background: var(--accent-light); color: var(--accent-dark); }
+    .nav-item.active {
+      background: var(--accent-light); color: var(--accent-dark);
+      border-left-color: var(--accent); font-weight: 600;
+    }
+    .nav-item .week-num {
+      font-size: 0.72rem; color: var(--ink-muted); display: block; margin-bottom: 0.05rem;
+    }
+    main { padding: 1.75rem 2.25rem 4rem; max-width: 900px; }
+    .week-view { display: none; }
+    .week-view.active { display: block; animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    h1 { font-size: 1.65rem; font-weight: 700; letter-spacing: -0.03em; margin-bottom: 0.3rem; }
+    .week-subtitle { color: var(--ink-muted); font-size: 0.95rem; margin-bottom: 0.5rem; }
+    .mission-tag {
+      display: inline-block;
+      background: var(--accent-light); color: var(--accent-dark);
+      font-size: 0.75rem; font-weight: 700;
+      padding: 0.2rem 0.6rem; border-radius: 6px;
+      margin-bottom: 1.25rem; text-transform: uppercase; letter-spacing: 0.04em;
+    }
+    .section {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.35rem 1.5rem;
+      margin-bottom: 1.25rem;
+      box-shadow: var(--shadow);
+    }
+    .section-header {
+      display: flex; align-items: center; gap: 0.55rem; margin-bottom: 0.9rem;
+    }
+    .section-icon {
+      width: 34px; height: 34px; border-radius: 9px;
+      background: var(--accent-light); color: var(--accent);
+      display: grid; place-items: center; font-size: 1rem; flex-shrink: 0;
+    }
+    .section h2 { font-size: 1.1rem; font-weight: 600; }
+
+    .video-player {
+      background: #17160f; border-radius: 12px; overflow: hidden; margin-bottom: 0.9rem;
+    }
+    .video-player video {
+      display: block; width: 100%; background: #17160f; aspect-ratio: 16/9;
+    }
+    .video-meta {
+      background: rgba(0,0,0,0.35);
+      padding: 0.5rem 1rem;
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: 0.8rem; color: rgba(255,255,255,0.85);
+    }
+    .listen-btn {
+      background: var(--accent); color: white; border: none;
+      padding: 0.3rem 0.7rem; border-radius: 6px;
+      font-size: 0.78rem; font-weight: 600; cursor: pointer; font-family: inherit;
+    }
+    .listen-btn:hover { background: var(--accent-dark); }
+    .listen-btn.playing { background: #c94c4c; }
+
+    .script-box {
+      background: #f4f3ef; border-radius: 10px; padding: 1rem 1.15rem;
+      font-size: 0.92rem; color: var(--ink); line-height: 1.6;
+      border-left: 4px solid var(--accent);
+    }
+    .script-box .label {
+      font-size: 0.72rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.04em; color: var(--accent-dark); margin-bottom: 0.4rem;
+    }
+    .script-box p { margin-bottom: 0.6rem; }
+    .script-box p:last-child { margin-bottom: 0; }
+    .humour {
+      color: var(--ink-muted); font-style: italic; font-size: 0.88rem;
+    }
+
+    .py-bridge {
+      background: var(--py-bg); border: 1.5px solid var(--py-border);
+      border-radius: 10px; padding: 0.9rem 1.1rem; margin: 0.9rem 0;
+    }
+    .py-bridge .label {
+      font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.04em; color: #3b5b9c; margin-bottom: 0.45rem;
+    }
+    .py-bridge table { width: 100%; font-size: 0.85rem; border-collapse: collapse; }
+    .py-bridge th, .py-bridge td {
+      text-align: left; padding: 0.35rem 0.45rem; border-bottom: 1px solid #d5e0f2; vertical-align: top;
+    }
+    .py-bridge th { color: #3b5b9c; font-weight: 600; font-size: 0.72rem; text-transform: uppercase; }
+    .py-bridge tr:last-child td { border-bottom: none; }
+
+    .mistake {
+      background: var(--warn-bg); border: 1.5px solid #f0d9a8;
+      border-left: 4px solid var(--warn); border-radius: 10px;
+      padding: 0.8rem 1rem; margin: 0.9rem 0; font-size: 0.88rem;
+    }
+    .mistake .label {
+      font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.04em; color: var(--warn); margin-bottom: 0.3rem;
+    }
+
+    .theory-content h3 {
+      font-size: 0.98rem; margin: 1.1rem 0 0.45rem; color: var(--accent-dark);
+    }
+    .theory-content h3:first-child { margin-top: 0; }
+    .theory-content p, .theory-content li {
+      font-size: 0.92rem; color: var(--ink); margin-bottom: 0.45rem;
+    }
+    .theory-content ul { padding-left: 1.2rem; margin-bottom: 0.65rem; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin: 0.65rem 0 0.9rem; }
+    th, td { text-align: left; padding: 0.5rem 0.65rem; border-bottom: 1px solid var(--border); }
+    th {
+      background: var(--accent-light); color: var(--accent-dark);
+      font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em;
+    }
+    tr:last-child td { border-bottom: none; }
+    code {
+      font-family: 'SF Mono', 'Fira Code', Consolas, monospace;
+      background: #f0efeb; padding: 0.12em 0.35em; border-radius: 4px; font-size: 0.84em;
+    }
+    pre {
+      background: #1e1e1c; color: #e8e6df;
+      padding: 0.9rem 1rem; border-radius: 8px;
+      overflow-x: auto; font-size: 0.82rem; line-height: 1.5; margin: 0.65rem 0;
+    }
+    pre code { background: none; padding: 0; color: inherit; }
+
+    .quiz-question {
+      margin-bottom: 1.35rem; padding-bottom: 1.1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .quiz-question:last-of-type { border-bottom: none; margin-bottom: 0.9rem; padding-bottom: 0; }
+    .quiz-q { font-weight: 600; margin-bottom: 0.45rem; font-size: 0.95rem; }
+    .quiz-tag {
+      display: inline-block; font-size: 0.68rem; font-weight: 700;
+      padding: 0.12rem 0.45rem; border-radius: 4px; margin-bottom: 0.4rem;
+      text-transform: uppercase; letter-spacing: 0.03em;
+    }
+    .quiz-tag.bug { background: #fde8e8; color: #b33; }
+    .quiz-tag.predict { background: #e8f0fe; color: #2b5bb8; }
+    .quiz-code {
+      background: #1e1e1c; color: #e8e6df;
+      padding: 0.6rem 0.85rem; border-radius: 8px;
+      font-family: 'SF Mono', Consolas, monospace; font-size: 0.82rem;
+      margin-bottom: 0.65rem; overflow-x: auto;
+    }
+    .quiz-options { display: flex; flex-direction: column; gap: 0.45rem; }
+    .quiz-opt {
+      display: flex; align-items: center; gap: 0.55rem;
+      padding: 0.55rem 0.8rem; border: 1.5px solid var(--border);
+      border-radius: 8px; cursor: pointer; transition: all 0.15s; font-size: 0.88rem;
+    }
+    .quiz-opt:hover { border-color: var(--accent); background: var(--accent-light); }
+    .quiz-opt.correct { border-color: var(--success); background: #e6f7f2; }
+    .quiz-opt.wrong { border-color: var(--error); background: #fdf0f0; }
+    .quiz-opt input { accent-color: var(--accent); }
+    .quiz-feedback {
+      margin-top: 0.65rem; font-size: 0.88rem; line-height: 1.5;
+      display: none; padding: 0.65rem 0.9rem; border-radius: 8px;
+    }
+    .quiz-feedback.show { display: block; }
+    .quiz-feedback.ok { background: #e6f7f2; color: #0b5c45; border: 1px solid #b8e6d6; }
+    .quiz-feedback.bad { background: #fdf0f0; color: #8b2e2e; border: 1px solid #f0c0c0; }
+    .quiz-feedback strong { display: block; margin-bottom: 0.2rem; }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: 0.35rem;
+      padding: 0.5rem 1rem; border-radius: 8px;
+      font-weight: 600; font-size: 0.85rem; border: none;
+      cursor: pointer; transition: all 0.15s; font-family: inherit;
+    }
+    .btn-primary { background: var(--accent); color: white; }
+    .btn-primary:hover { background: var(--accent-dark); }
+    .btn-outline {
+      background: transparent; border: 1.5px solid var(--border); color: var(--ink);
+    }
+    .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+
+    .challenge-box {
+      background: linear-gradient(135deg, var(--accent-light), #f0faf7);
+      border: 1.5px solid #b8e6d6; border-radius: 10px;
+      padding: 1.1rem 1.25rem; margin-bottom: 0.9rem;
+    }
+    .challenge-box.boss {
+      background: linear-gradient(135deg, var(--boss-bg), #faf6ff);
+      border-color: #d4c0ec;
+    }
+    .challenge-box h3 { font-size: 0.98rem; margin-bottom: 0.35rem; color: var(--accent-dark); }
+    .challenge-box.boss h3 { color: var(--boss); }
+    .boss-tag {
+      display: inline-block; background: var(--boss); color: white;
+      font-size: 0.65rem; font-weight: 700; padding: 0.12rem 0.45rem;
+      border-radius: 4px; margin-right: 0.35rem; vertical-align: middle;
+    }
+    .challenge-box p { font-size: 0.9rem; margin-bottom: 0.5rem; }
+    .sample-out {
+      background: #1e1e1c; color: #9fefb0;
+      font-family: 'SF Mono', Consolas, monospace; font-size: 0.78rem;
+      padding: 0.55rem 0.75rem; border-radius: 6px; margin: 0.5rem 0 0.65rem;
+      white-space: pre-wrap;
+    }
+    .sample-out .lbl { color: #888; font-size: 0.7rem; display: block; margin-bottom: 0.25rem; }
+    .challenge-actions {
+      display: flex; flex-wrap: wrap; gap: 0.45rem; align-items: center; margin-top: 0.6rem;
+    }
+    .compiler-link {
+      display: inline-flex; align-items: center; gap: 0.35rem;
+      background: var(--accent); color: white;
+      padding: 0.45rem 0.9rem; border-radius: 8px;
+      text-decoration: none; font-weight: 600; font-size: 0.82rem;
+    }
+    .challenge-box.boss .compiler-link { background: var(--boss); }
+    .compiler-link:hover { filter: brightness(0.92); }
+    .starter-toggle {
+      background: white; border: 1.5px solid var(--border);
+      padding: 0.4rem 0.75rem; border-radius: 8px;
+      font-size: 0.82rem; font-weight: 600; cursor: pointer;
+      font-family: inherit; color: var(--ink);
+    }
+    .starter-toggle:hover { border-color: var(--accent); color: var(--accent); }
+    .starter-body { display: none; margin-top: 0.65rem; }
+    .starter-body.open { display: block; }
+    .done-check {
+      display: flex; align-items: center; gap: 0.35rem;
+      font-size: 0.82rem; color: var(--ink-muted); margin-left: auto;
+      cursor: pointer; user-select: none;
+    }
+    .done-check input { accent-color: var(--accent); width: 15px; height: 15px; }
+    .done-check.done { color: var(--accent-dark); font-weight: 600; }
+
+    .think-steps {
+      background: #f8f7f4; border-radius: 8px;
+      padding: 0.75rem 0.9rem; margin-bottom: 0.65rem; font-size: 0.88rem;
+    }
+    .think-steps ol { padding-left: 1.15rem; margin: 0.3rem 0 0; }
+    .think-steps li { margin-bottom: 0.2rem; }
+
+    .solution-toggle {
+      width: 100%; text-align: left; background: #f4f3ef;
+      border: 1px solid var(--border); border-radius: 8px;
+      padding: 0.75rem 1rem; font-weight: 600; font-size: 0.9rem;
+      cursor: pointer; display: flex; justify-content: space-between; align-items: center;
+      font-family: inherit; color: var(--ink); transition: background 0.15s;
+      margin-top: 0.55rem;
+    }
+    .solution-toggle:hover { background: #ebeae4; }
+    .solution-toggle .arrow { transition: transform 0.2s; }
+    .solution-toggle.open .arrow { transform: rotate(180deg); }
+    .solution-body {
+      display: none; padding: 0.9rem 1rem;
+      border: 1px solid var(--border); border-top: none;
+      border-radius: 0 0 8px 8px; background: white;
+    }
+    .solution-body.open { display: block; }
+    .solution-body p { font-size: 0.88rem; margin-bottom: 0.65rem; color: var(--ink-muted); }
+
+    .week-nav {
+      display: flex; justify-content: space-between;
+      margin-top: 1.75rem; padding-top: 1.25rem; border-top: 1px solid var(--border);
+    }
+    .intro-card {
+      background: linear-gradient(135deg, var(--ink) 0%, #2a2924 100%);
+      color: white; border-radius: var(--radius); padding: 1.75rem; margin-bottom: 1.5rem;
+    }
+    .intro-card h1 { color: white; font-size: 1.7rem; }
+    .intro-card p { opacity: 0.9; margin-top: 0.45rem; font-size: 0.95rem; }
+    .badge {
+      display: inline-block; background: rgba(14,158,120,0.2); color: #5ee0b8;
+      font-size: 0.72rem; font-weight: 600; padding: 0.2rem 0.55rem;
+      border-radius: 999px; margin-bottom: 0.65rem;
+    }
+    .xp-toast {
+      position: fixed; bottom: 1.5rem; right: 1.5rem;
+      background: var(--ink); color: white;
+      padding: 0.75rem 1.15rem; border-radius: 10px;
+      font-size: 0.88rem; font-weight: 600;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+      transform: translateY(120%); opacity: 0;
+      transition: all 0.35s ease; z-index: 200;
+    }
+    .xp-toast.show { transform: translateY(0); opacity: 1; }
+    .xp-toast span { color: var(--xp); }
+
+    @media (max-width: 800px) {
+      .layout { grid-template-columns: 1fr; }
+      nav {
+        position: relative; top: 0; height: auto;
+        border-right: none; border-bottom: 1px solid var(--border);
+        display: flex; overflow-x: auto; padding: 0.5rem;
+      }
+      nav h3 { display: none; }
+      .nav-item {
+        white-space: nowrap; border-left: none; border-bottom: 3px solid transparent;
+        padding: 0.55rem 0.9rem;
+      }
+      .nav-item.active { border-bottom-color: var(--accent); border-left: none; }
+      main { padding: 1.15rem 0.9rem 3rem; }
+      .xp-wrap { order: 3; width: 100%; max-width: none; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">
+      <div class="logo-mark">K</div>
+      <span>kapi <span style="opacity:0.55;font-weight:400">|</span> C# Missions</span>
+    </div>
+    <div class="xp-wrap">
+      <div class="xp-bar-bg"><div class="xp-bar-fill" id="xp-fill"></div></div>
+      <span class="xp-label" id="xp-text">0 XP</span>
+      <span class="rank-badge" id="rank-badge">Newbie</span>
+    </div>
+    <div class="header-right">
+      <a href="https://kapilearn.com" target="_blank">kapilearn.com</a>
+    </div>
+  </header>
+
+  <div class="xp-toast" id="xp-toast">+<span id="xp-toast-amt">50</span> XP</div>
+
+  <div class="layout">
+    <nav>
+      <h3>Mission Board</h3>
+      <a class="nav-item active" data-week="0" onclick="showWeek(0)">
+        <span class="week-num">HQ</span>
+        Mission Briefing
+      </a>
+      <a class="nav-item" data-week="1" onclick="showWeek(1)">
+        <span class="week-num">Mission 1</span>
+        Player Login Screen
+      </a>
+      <a class="nav-item" data-week="2" onclick="showWeek(2)">
+        <span class="week-num">Mission 2</span>
+        Stats &amp; Inventory
+      </a>
+      <a class="nav-item" data-week="3" onclick="showWeek(3)">
+        <span class="week-num">Mission 3</span>
+        Combat Math
+      </a>
+      <a class="nav-item" data-week="4" onclick="showWeek(4)">
+        <span class="week-num">Mission 4</span>
+        Chat &amp; Tags
+      </a>
+    </nav>
+
+    <main>
+
+      <div class="week-view active" id="week-0">
+        <div class="intro-card">
+          <div class="badge">Kapilearn Game Studio · Training Arc</div>
+          <h1>You’re on the C# team now</h1>
+          <p>You already know Python. Same ideas — stricter syntax. Your job: build tiny tools a school game studio would actually use. Login screens, player stats, combat math, chat tags.</p>
+          <p style="margin-top:0.85rem;font-size:0.9rem;opacity:0.78">Mark challenges done to earn XP. Climb ranks: Newbie → Console Cadet → Type Titan → String Samurai. Boss fights are optional… unless you’re bored.</p>
+        </div>
+        <div class="section">
+          <div class="section-header"><div class="section-icon">🎮</div><h2>How missions work</h2></div>
+          <ol style="padding-left:1.35rem;font-size:0.92rem">
+            <li><strong>Video</strong> – short briefing (optional “Also listen”)</li>
+            <li><strong>Theory</strong> – cheat sheet + Python bridge + “don’t do this” callouts</li>
+            <li><strong>Quiz</strong> – includes Bug Hunts and “predict the output”</li>
+            <li><strong>Missions</strong> – normal challenges + one optional Boss</li>
+            <li><strong>Solutions</strong> – thinking steps first, then code</li>
+          </ol>
+          <p style="margin-top:0.9rem;font-size:0.88rem;color:var(--ink-muted)">Run everything on <a href="https://onecompiler.com/csharp" target="_blank" style="color:var(--accent)">OneCompiler.com (C#)</a> — no install.</p>
+        </div>
+        <div class="section">
+          <div class="section-header"><div class="section-icon">🗺️</div><h2>Mission map</h2></div>
+          <table>
+            <thead><tr><th>Mission</th><th>Studio task</th><th>C# skills</th></tr></thead>
+            <tbody>
+              <tr><td>1</td><td>Player login / welcome screen</td><td>Main, Console, input</td></tr>
+              <tr><td>2</td><td>Stats &amp; inventory numbers</td><td>Types, Parse, TryParse</td></tr>
+              <tr><td>3</td><td>Combat math &amp; events</td><td>Operators, %, decisions</td></tr>
+              <tr><td>4</td><td>Tags, chat tools, censors</td><td>Strings, Split, format</td></tr>
+            </tbody>
+          </table>
+          <button class="btn btn-primary" onclick="showWeek(1)" style="margin-top:0.5rem">Start Mission 1 →</button>
+        </div>
+      </div>
+
+      <div class="week-view" id="week-1">
+        <h1>Mission 1 – Player Login Screen</h1>
+        <p class="week-subtitle">Get a name on the screen. Every game starts here.</p>
+        <div class="mission-tag">Studio task · Welcome the player</div>
+
+        <div class="section">
+          <div class="section-header"><div class="section-icon">▶️</div><h2>1. Briefing video</h2></div>
+          <div class="video-player">
+            <video controls preload="metadata"><source src="videos/week1.mp4" type="video/mp4" /></video>
+            <div class="video-meta">
+              <span>Kapilearn · Mission 1</span>
+              <button class="listen-btn" onclick="toggleSpeech(this, 'week1')">🔊 Also listen</button>
+            </div>
+          </div>
+          <div class="script-box">
+            <div class="label">Briefing notes</div>
+            <p>C# is the strict teacher who wants the full sentence. Every program walks through a door called <code>Main</code>. Console is your chat window with the player: <code>WriteLine</code> talks, <code>ReadLine</code> listens.</p>
+            <p class="humour">Forget a semicolon and C# just… stares at you. It won’t guess.</p>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-header"><div class="section-icon">📖</div><h2>2. Loadout (theory)</h2></div>
+          <div class="theory-content">
+            <div class="py-bridge">
+              <div class="label">From Python → C#</div>
+              <table>
+                <tr><th>Python</th><th>C#</th></tr>
+                <tr><td><code>print("Hi")</code></td><td><code>Console.WriteLine("Hi");</code></td></tr>
+                <tr><td><code>name = input()</code></td><td><code>string name = Console.ReadLine();</code></td></tr>
+                <tr><td>No entry point</td><td>Must have <code>static void Main()</code></td></tr>
+              </table>
+            </div>
+            <h3>Skeleton every mission needs</h3>
+            <pre><code>using System;
+
+class Program {
+    static void Main() {
+        Console.WriteLine("Hello, World!");
+    }
+}</code></pre>
+            <ul>
+              <li><code>using System;</code> — opens the toolbox with Console inside</li>
+              <li><code>Main</code> — the door the computer always uses first</li>
+            </ul>
+            <table>
+              <thead><tr><th>Action</th><th>Code</th></tr></thead>
+              <tbody>
+                <tr><td>Print + new line</td><td><code>Console.WriteLine(x);</code></td></tr>
+                <tr><td>Print, stay on line</td><td><code>Console.Write(x);</code></td></tr>
+                <tr><td>Read player input</td><td><code>string s = Console.ReadLine();</code></td></tr>
+              </tbody>
+            </table>
+            <div class="mistake">
+              <div class="label">Common mistake</div>
+              Writing <code>main</code> instead of <code>Main</code>, or forgetting <code>;</code>. C# is case-sensitive and punctuation-picky. It’s not angry — just extremely literal.
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-header"><div class="section-icon">❓</div><h2>3. Quick checks</h2></div>
+
+          <div class="quiz-question" data-correct="b" data-explain="Main is the entry point. The runtime always looks for it first — like the spawn point in a level.">
+            <div class="quiz-q">1. Where does a C# program start?</div>
+            <div class="quiz-options">
+              <label class="quiz-opt"><input type="radio" name="q1-1" value="a"> Start()</label>
+              <label class="quiz-opt"><input type="radio" name="q1-1" value="b"> Main()</label>
+              <label class="quiz-opt"><input type="radio" name="q1-1" value="c"> Run()</label>
+              <label class="quiz-opt"><input type="radio" name="q1-1" value="d"> Begin()</label>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question" data-correct="b" data-explain="ReadLine always returns text. Even numbers arrive as strings until you Parse them.">
+            <div class="quiz-tag predict">Predict</div>
+            <div class="quiz-q">2. User types <code>Zara</code>. What prints?</div>
+            <div class="quiz-code">Console.Write("Name: ");
+string n = Console.ReadLine();
+Console.WriteLine("Hi " + n);</div>
+            <div class="quiz-options">
+              <label class="quiz-opt"><input type="radio" name="q1-2" value="a"> Hi</label>
+              <label class="quiz-opt"><input type="radio" name="q1-2" value="b"> Hi Zara</label>
+              <label class="quiz-opt"><input type="radio" name="q1-2" value="c"> Name: Zara</label>
+              <label class="quiz-opt"><input type="radio" name="q1-2" value="d"> Error</label>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <div class="quiz-question" data-correct="c" data-explain="int score = Console.ReadLine() fails because ReadLine returns string, not int. You need Parse or TryParse.">
+            <div class="quiz-tag bug">Bug hunt</div>
+            <div class="quiz-q">3. What’s wrong with this line?</div>
+            <div class="quiz-code">int score = Console.ReadLine();</div>
+            <div class="quiz-options">
+              <label class="quiz-opt"><input type="radio" name="q1-3" value="a"> Missing semicolon</label>
+              <label class="quiz-opt"><input type="radio" name="q1-3" value="b"> score should be capital S</label>
+              <label class="quiz-opt"><input type="radio" name="q1-3" value="c"> ReadLine returns string, not int</label>
+              <label class="quiz-opt"><input type="radio" name="q1-3" value="d"> Nothing — it works</label>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+
+          <button class="btn btn-primary" onclick="checkQuiz(this)">Check answers (+15 XP if all correct)</button>
+        </div>
+
+        <div class="section">
+          <div class="section-header"><div class="section-icon">💻</div><h2>4. Missions</h2></div>
+
+          <div class="challenge-box" id="c11">
+            <h3>1.1 – Player Check-In</h3>
+            <p>Print a studio welcome, ask for the player name, then greet them like they’re locking into a match.</p>
+            <div class="sample-out"><span class="lbl">Share-worthy output idea</span>*** KAPI STUDIOS ***
+Player: Zara
+Status: LOCKED IN</div>
+            <div class="challenge-actions">
+              <a class="compiler-link" href="https://onecompiler.com/csharp" target="_blank">Open OneCompiler ↗</a>
+              <button class="starter-toggle" onclick="toggleStarter(this)">Show starter code</button>
+              <label class="done-check"><input type="checkbox" data-xp="40" onchange="markDone(this)"> Mark done (+40 XP)</label>
+            </div>
+            <div class="starter-body"><pre><code>using System;
+class Program {
+    static void Main() {
+        Console.WriteLine("*** KAPI STUDIOS ***");
+        Console.Write("Player name: ");
+        // TODO: read name
+        // TODO: print a cool greeting
+    }
+}</code></pre></div>
+          </div>
+          <div class="challenge-box" id="c12">
+            <h3>1.2 – Quick Score Add</h3>
+            <p>Ask for two round scores (whole numbers) and print the total. Think: two match points combined.</p>
+            <div class="sample-out"><span class="lbl">Share-worthy output idea</span>Round 1: 12
+Round 2: 9
+Total: 21</div>
+            <div class="challenge-actions">
+              <a class="compiler-link" href="https://onecompiler.com/csharp" target="_blank">Open OneCompiler ↗</a>
+              <button class="starter-toggle" onclick="toggleStarter(this)">Show starter code</button>
+              <label class="done-check"><input type="checkbox" data-xp="40" onchange="markDone(this)"> Mark done (+40 XP)</label>
+            </div>
+            <div class="starter-body"><pre><code>using System;
+class Program {
+    static void Main() {
+        Console.Write("Round 1 score: ");
+        // TODO: parse int
+        Console.Write("Round 2 score: ");
+        // TODO: parse int, print total
+    }
+}</code></pre></div>
+          </div>
+          <div class="challenge-box boss" id="c1b">
+            <h3><span class="boss-tag">BOSS</span> 1.B – Empty Name = No Entry</h3>
+            <p>Boss: greet the player, but if they type nothing (empty name), print ACCESS DENIED instead of Hello.</p>
+            <div class="sample-out"><span class="lbl">Share-worthy output idea</span>Player name: 
+ACCESS DENIED</div>
+            <div class="challenge-actions">
+              <a class="compiler-link" href="https://onecompiler.com/csharp" target="_blank">Open OneCompiler ↗</a>
+              <button class="starter-toggle" onclick="toggleStarter(this)">Show starter code</button>
+              <label class="done-check"><input type="checkbox" data-xp="80" onchange="markDone(this)"> Mark done (+80 XP)</label>
+            </div>
+            <div class="starter-body"><pre><code>using System;
+class Program {
+    static void Main() {
+        Console.Write("Player name: ");
+        string name = Console.ReadLine();
+        // TODO: if null/empty → ACCESS DENIED
+        // else → Hello, name!
+    }
+}</code></pre></div>
+          </div>
+        </div>
+        <div class="section">
+          <div class="section-header"><div class="section-icon">✅</div><h2>5. Debriefs (solutions)</h2></div>
+
+          <button class="solution-toggle" onclick="toggleSolution(this)">
+            Debrief 1.1 – Player Check-In
+            <span class="arrow">▼</span>
+          </button>
+          <div class="solution-body">
+            <div class="think-steps"><strong>Thinking steps</strong><ol><li>Print the studio banner.</li><li>Ask for name with Write (cursor stays put).</li><li>ReadLine the name.</li><li>Print a locked-in style greeting.</li></ol></div>
+            <pre><code>using System;
+class Program {
+    static void Main() {
+        Console.WriteLine("*** KAPI STUDIOS ***");
+        Console.Write("Player name: ");
+        string name = Console.ReadLine();
+        Console.WriteLine("Player: " + name);
+        Console.WriteLine("Status: LOCKED IN");
+    }
+}</code></pre>
+          </div>
+          <button class="solution-toggle" onclick="toggleSolution(this)">
+            Debrief 1.2 – Quick Score Add
+            <span class="arrow">▼</span>
+          </button>
+          <div class="solution-body">
+            <div class="think-steps"><strong>Thinking steps</strong><ol><li>Read two numbers with Parse.</li><li>Add them.</li><li>Print total.</li></ol></div>
+            <pre><code>using System;
+class Program {
+    static void Main() {
+        Console.Write("Round 1 score: ");
+        int a = int.Parse(Console.ReadLine());
+        Console.Write("Round 2 score: ");
+        int b = int.Parse(Console.ReadLine());
+        Console.WriteLine("Total: " + (a + b));
+    }
+}</code></pre>
+          </div>
+          <button class="solution-toggle" onclick="toggleSolution(this)">
+            Debrief 1.B – Empty Name Boss
+            <span class="arrow">▼</span>
+          </button>
+          <div class="solution-body">
+            <div class="think-steps"><strong>Thinking steps</strong><ol><li>Read the name.</li><li>If null or empty (or only spaces), deny access.</li><li>Otherwise greet.</li></ol></div>
+            <pre><code>using System;
+class Program {
+    static void Main() {
+        Console.Write("Player name: ");
+        string name = Console.ReadLine();
+        if (string.IsNullOrWhiteSpace(name))
+            Console.WriteLine("ACCESS DENIED");
+        else
+            Console.WriteLine("Hello, " + name + "!");
+    }
+}</code></pre>
+          </div>
+        </div>
+        <div class="week-nav">
+          <button class="btn btn-outline" onclick="showWeek(0)">← HQ</button>
+          <button class="btn btn-primary" onclick="showWeek(2)">Mission 2 →</button>
+        </div>
+      </div>
+
+      <div class="week-view" id="week-2">
+        <h1>Mission 2 – Stats &amp; Inventory</h1>
+        <p class="week-subtitle">Health, coins, temperatures — numbers that must not crash the game.</p>
+        <div class="mission-tag">Studio task · Player stats panel</div>
+
+        <div class="section">
+          <div class="section-header"><div class="section-icon">▶️</div><h2>1. Briefing video</h2></div>
+          <div class="video-player">
+            <video controls preload="metadata"><source src="videos/week2.mp4" type="video/mp4" /></video>
+            <div class="video-meta">
+              <span>Kapilearn · Mission 2</span>
+              <button class="listen-btn" onclick="toggleSpeech(this, 'week2')">🔊 Also listen</button>
+            </div>
+          </div>
+          <div class="script-box">
+            <div class="label">Briefing notes</div>
+            <p>Variables are labelled boxes. C# wants to know what’s inside: whole numbers, decimals, true/false, or text. <code>TryParse</code> is your crash helmet for user input.</p>
+            <p class="humour">Use <code>decimal</code> for money. <code>double</code> is fine for science — less fine for “why is my shop 0.01p short?”</p>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-header"><div class="section-icon">📖</div><h2>2. Loadout</h2></div>
+          <div class="theory-content">
+            <div class="py-bridge">
+              <div class="label">From Python → C#</div>
+              <table>
+                <tr><th>Python</th><th>C#</th></tr>
+                <tr><td><code>hp = 100</code></td><td><code>int hp = 100;</code></td></tr>
+                <tr><td><code>int(input())</code></td><td><code>int.TryParse(...)</code> (safer)</td></tr>
+                <tr><td>Types are invisible</td><td>Types are required (or use <code>var</code>)</td></tr>
+              </table>
+            </div>
+            <table>
+              <thead><tr><th>Type</th><th>Use for</th><th>Example</th></tr></thead>
+              <tbody>
+                <tr><td><code>int</code></td><td>HP, coins, levels</td><td><code>int hp = 100;</code></td></tr>
+                <tr><td><code>double</code></td><td>Heights, temps</td><td><code>double t = 21.5;</code></td></tr>
+                <tr><td><code>decimal</code></td><td>Shop prices</td><td><code>decimal p = 4.99m;</code></td></tr>
+                <tr><td><code>bool</code></td><td>Flags</td><td><code>bool alive = true;</code></td></tr>
+                <tr><td><code>string</code></td><td>Names, tags</td><td><code>string tag = "N0VA";</code></td></tr>
+              </tbody>
+            </table>
+            <div class="mistake">
+              <div class="label">Common mistake</div>
+              <code>int.Parse</code> on random user typing → crash. Wear the helmet: <code>TryParse</code>.
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-header"><div class="section-icon">❓</div><h2>3. Quick checks</h2></div>
+          <div class="quiz-question" data-correct="c" data-explain="TryParse returns false instead of exploding when the text isn’t a number.">
+            <div class="quiz-q">1. Why prefer <code>TryParse</code> over <code>Parse</code> for player input?</div>
+            <div class="quiz-options">
+              <label class="quiz-opt"><input type="radio" name="q2-1" value="a"> It’s faster</label>
+              <label class="quiz-opt"><input type="radio" name="q2-1" value="b"> It returns a double</label>
+              <label class="quiz-opt"><input type="radio" name="q2-1" value="c"> It doesn’t crash on bad input</label>
+              <label class="quiz-opt"><input type="radio" name="q2-1" value="d"> Only works on positives</label>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+          <div class="quiz-question" data-correct="a" data-explain="14 × 12 = 168. Straight integer multiply.">
+            <div class="quiz-tag predict">Predict</div>
+            <div class="quiz-q">2. What prints?</div>
+            <div class="quiz-code">int age = 14;
+Console.WriteLine(age * 12);</div>
+            <div class="quiz-options">
+              <label class="quiz-opt"><input type="radio" name="q2-2" value="a"> 168</label>
+              <label class="quiz-opt"><input type="radio" name="q2-2" value="b"> 14</label>
+              <label class="quiz-opt"><input type="radio" name="q2-2" value="c"> age * 12</label>
+              <label class="quiz-opt"><input type="radio" name="q2-2" value="d"> Error</label>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+          <div class="quiz-question" data-correct="b" data-explain="m suffix is required for decimal literals. Without it, 19.99 is a double and won’t silently fit into decimal without a cast.">
+            <div class="quiz-tag bug">Bug hunt</div>
+            <div class="quiz-q">3. What’s the problem?</div>
+            <div class="quiz-code">decimal price = 19.99;</div>
+            <div class="quiz-options">
+              <label class="quiz-opt"><input type="radio" name="q2-3" value="a"> decimal can’t store money</label>
+              <label class="quiz-opt"><input type="radio" name="q2-3" value="b"> Need 19.99m (m suffix)</label>
+              <label class="quiz-opt"><input type="radio" name="q2-3" value="c"> Should be int</label>
+              <label class="quiz-opt"><input type="radio" name="q2-3" value="d"> Nothing wrong</label>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+          <button class="btn btn-primary" onclick="checkQuiz(this)">Check answers (+15 XP if all correct)</button>
+        </div>
+
+        <div class="section">
+          <div class="section-header"><div class="section-icon">💻</div><h2>4. Missions</h2></div>
+
+          <div class="challenge-box" id="c21">
+            <h3>2.1 – Playtime Counter</h3>
+            <p>Ask for age in years. Print how many months they’ve been grinding life (age × 12).</p>
+            <div class="sample-out"><span class="lbl">Share-worthy output idea</span>Age: 14
+Months on Earth: 168</div>
+            <div class="challenge-actions">
+              <a class="compiler-link" href="https://onecompiler.com/csharp" target="_blank">Open OneCompiler ↗</a>
+              <button class="starter-toggle" onclick="toggleStarter(this)">Show starter code</button>
+              <label class="done-check"><input type="checkbox" data-xp="40" onchange="markDone(this)"> Mark done (+40 XP)</label>
+            </div>
+            <div class="starter-body"><pre><code>using System;
+class Program {
+    static void Main() {
+        Console.Write("Age in years: ");
+        // TODO: int age, print months
+    }
+}</code></pre></div>
+          </div>
+          <div class="challenge-box" id="c22">
+            <h3>2.2 – Biome Temperature</h3>
+            <p>Celsius → Fahrenheit for a game biome. F = C × 9/5 + 32. One decimal place.</p>
+            <div class="sample-out"><span class="lbl">Share-worthy output idea</span>Celsius: 22
+Fahrenheit: 71.6</div>
+            <div class="challenge-actions">
+              <a class="compiler-link" href="https://onecompiler.com/csharp" target="_blank">Open OneCompiler ↗</a>
+              <button class="starter-toggle" onclick="toggleStarter(this)">Show starter code</button>
+              <label class="done-check"><input type="checkbox" data-xp="40" onchange="markDone(this)"> Mark done (+40 XP)</label>
+            </div>
+            <div class="starter-body"><pre><code>using System;
+class Program {
+    static void Main() {
+        Console.Write("Celsius: ");
+        // TODO: double, convert, print :F1
+    }
+}</code></pre></div>
+          </div>
+          <div class="challenge-box" id="c23">
+            <h3>2.3 – Safe Coin Input</h3>
+            <p>Read coins with TryParse. Bad input → print INVALID DROP (don’t crash).</p>
+            <div class="sample-out"><span class="lbl">Share-worthy output idea</span>Coins: banana
+INVALID DROP</div>
+            <div class="challenge-actions">
+              <a class="compiler-link" href="https://onecompiler.com/csharp" target="_blank">Open OneCompiler ↗</a>
+              <button class="starter-toggle" onclick="toggleStarter(this)">Show starter code</button>
+              <label class="done-check"><input type="checkbox" data-xp="40" onchange="markDone(this)"> Mark done (+40 XP)</label>
+            </div>
+            <div class="starter-body"><pre><code>using System;
+class Program {
+    static void Main() {
+        Console.Write("Coins: ");
+        // TODO: TryParse → print coins or INVALID DROP
+    }
+}</code></pre></div>
+          </div>
+          <div class="challenge-box boss" id="c2b">
+            <h3><span class="boss-tag">BOSS</span> 2.B – Freeze / Boil Alerts</h3>
+            <p>Boss: convert C→F, then also warn if C ≤ 0 (FREEZING) or C ≥ 100 (BOILING).</p>
+            <div class="sample-out"><span class="lbl">Share-worthy output idea</span>Celsius: -2
+Fahrenheit: 28.4
+FREEZING</div>
+            <div class="challenge-actions">
+              <a class="compiler-link" href="https://onecompiler.com/csharp" target="_blank">Open OneCompiler ↗</a>
+              <button class="starter-toggle" onclick="toggleStarter(this)">Show starter code</button>
+              <label class="done-check"><input type="checkbox" data-xp="80" onchange="markDone(this)"> Mark done (+80 XP)</label>
+            </div>
+            <div class="starter-body"><pre><code>using System;
+class Program {
+    static void Main() {
+        Console.Write("Celsius: ");
+        double c = double.Parse(Console.ReadLine());
+        double f = c * 9 / 5 + 32;
+        Console.WriteLine($"Fahrenheit: {f:F1}");
+        // TODO: FREEZING / BOILING alerts
+    }
+}</code></pre></div>
+          </div>
+        </div>
+        <div class="section">
+          <div class="section-header"><div class="section-icon">✅</div><h2>5. Debriefs</h2></div>
+
+          <button class="solution-toggle" onclick="toggleSolution(this)">
+            Debrief 2.1
+            <span class="arrow">▼</span>
+          </button>
+          <div class="solution-body">
+            <div class="think-steps"><strong>Thinking steps</strong><ol><li>Parse age.</li><li>Multiply by 12.</li><li>Print.</li></ol></div>
+            <pre><code>using System;
+class Program {
+    static void Main() {
+        Console.Write("Age in years: ");
+        int age = int.Parse(Console.ReadLine());
+        Console.WriteLine("Months on Earth: " + (age * 12));
+    }
+}</code></pre>
+          </div>
+          <button class="solution-toggle" onclick="toggleSolution(this)">
+            Debrief 2.2
+            <span class="arrow">▼</span>
+          </button>
+          <div class="solution-body">
+            <div class="think-steps"><strong>Thinking steps</strong><ol><li>Parse double.</li><li>Apply formula.</li><li>Print with :F1.</li></ol></div>
+            <pre><code>using System;
+class Program {
+    static void Main() {
+        Console.Write("Celsius: ");
+        double c = double.Parse(Console.ReadLine());
+        double f = c * 9 / 5 + 32;
+        Console.WriteLine($"Fahrenheit: {f:F1}");
+    }
+}</code></pre>
+          </div>
+          <button class="solution-toggle" onclick="toggleSolution(this)">
+            Debrief 2.3
+            <span class="arrow">▼</span>
+          </button>
+          <div class="solution-body">
+            <div class="think-steps"><strong>Thinking steps</strong><ol><li>TryParse the input.</li><li>If ok print coins.</li><li>Else INVALID DROP.</li></ol></div>
+            <pre><code>using System;
+class Program {
+    static void Main() {
+        Console.Write("Coins: ");
+        if (int.TryParse(Console.ReadLine(), out int coins))
+            Console.WriteLine("Coins: " + coins);
+        else
+            Console.WriteLine("INVALID DROP");
+    }
+}</code></pre>
+          </div>
+          <button class="solution-toggle" onclick="toggleSolution(this)">
+            Debrief 2.B Boss
+            <span class="arrow">▼</span>
+          </button>
+          <div class="solution-body">
+            <div class="think-steps"><strong>Thinking steps</strong><ol><li>Convert as usual.</li><li>If c <= 0 print FREEZING.</li><li>If c >= 100 print BOILING.</li></ol></div>
+            <pre><code>using System;
+class Program {
+    static void Main() {
+        Console.Write("Celsius: ");
+        double c = double.Parse(Console.ReadLine());
+        double f = c * 9 / 5 + 32;
+        Console.WriteLine($"Fahrenheit: {f:F1}");
+        if (c <= 0) Console.WriteLine("FREEZING");
+        if (c >= 100) Console.WriteLine("BOILING");
+    }
+}</code></pre>
+          </div>
+        </div>
+        <div class="week-nav">
+          <button class="btn btn-outline" onclick="showWeek(1)">← Mission 1</button>
+          <button class="btn btn-primary" onclick="showWeek(3)">Mission 3 →</button>
+        </div>
+      </div>
+
+      <div class="week-view" id="week-3">
+        <h1>Mission 3 – Combat Math</h1>
+        <p class="week-subtitle">Damage, even/odd rolls, event days — operators with attitude.</p>
+        <div class="mission-tag">Studio task · Hit calculations</div>
+
+        <div class="section">
+          <div class="section-header"><div class="section-icon">▶️</div><h2>1. Briefing video</h2></div>
+          <div class="video-player">
+            <video controls preload="metadata"><source src="videos/week3.mp4" type="video/mp4" /></video>
+            <div class="video-meta">
+              <span>Kapilearn · Mission 3</span>
+              <button class="listen-btn" onclick="toggleSpeech(this, 'week3')">🔊 Also listen</button>
+            </div>
+          </div>
+          <div class="script-box">
+            <div class="label">Briefing notes</div>
+            <p><code>%</code> means remainder, not percent. <code>10 / 4</code> is 2 when both are ints — C# ate the 0.5. Rude, but consistent. Use brackets when precedence gets spicy.</p>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-header"><div class="section-icon">📖</div><h2>2. Loadout</h2></div>
+          <div class="theory-content">
+            <div class="py-bridge">
+              <div class="label">From Python → C#</div>
+              <table>
+                <tr><th>Python</th><th>C#</th></tr>
+                <tr><td><code>10 / 4 → 2.5</code></td><td><code>10 / 4 → 2</code> (int division)</td></tr>
+                <tr><td><code>and / or / not</code></td><td><code>&amp;&amp; / || / !</code></td></tr>
+              </table>
+            </div>
+            <table>
+              <thead><tr><th>Op</th><th>Meaning</th><th>Example</th></tr></thead>
+              <tbody>
+                <tr><td><code>%</code></td><td>Remainder</td><td><code>17 % 5 → 2</code></td></tr>
+                <tr><td><code>/</code></td><td>Divide (truncates ints)</td><td><code>10 / 4 → 2</code></td></tr>
+                <tr><td><code>&amp;&amp; || !</code></td><td>AND OR NOT</td><td><code>hp &gt; 0 &amp;&amp; alive</code></td></tr>
+              </tbody>
+            </table>
+            <p><strong>Precedence:</strong> <code>2 + 3 * 4 = 14</code>. Brackets if unsure.</p>
+            <div class="mistake">
+              <div class="label">Common mistake</div>
+              Expecting <code>10 / 4</code> to be 2.5. Write <code>10.0 / 4</code> when you need the fraction.
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-header"><div class="section-icon">❓</div><h2>3. Quick checks</h2></div>
+          <div class="quiz-question" data-correct="c" data-explain="Remainder 2. Classic even/odd tool: n % 2 == 0 means even.">
+            <div class="quiz-q">1. What is <code>17 % 5</code>?</div>
+            <div class="quiz-options">
+              <label class="quiz-opt"><input type="radio" name="q3-1" value="a"> 3.4</label>
+              <label class="quiz-opt"><input type="radio" name="q3-1" value="b"> 3</label>
+              <label class="quiz-opt"><input type="radio" name="q3-1" value="c"> 2</label>
+              <label class="quiz-opt"><input type="radio" name="q3-1" value="d"> 0</label>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+          <div class="quiz-question" data-correct="a" data-explain="Multiply first: 3*4=12, plus 2 = 14.">
+            <div class="quiz-tag predict">Predict</div>
+            <div class="quiz-q">2. What prints?</div>
+            <div class="quiz-code">Console.WriteLine(2 + 3 * 4);</div>
+            <div class="quiz-options">
+              <label class="quiz-opt"><input type="radio" name="q3-2" value="a"> 14</label>
+              <label class="quiz-opt"><input type="radio" name="q3-2" value="b"> 20</label>
+              <label class="quiz-opt"><input type="radio" name="q3-2" value="c"> 9</label>
+              <label class="quiz-opt"><input type="radio" name="q3-2" value="d"> 24</label>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+          <div class="quiz-question" data-correct="b" data-explain="Integer division: 10/4 is 2, not 2.5. The code is ‘wrong’ only if you expected decimals.">
+            <div class="quiz-tag bug">Bug hunt</div>
+            <div class="quiz-q">3. Player expects 2.5 — why do they get 2?</div>
+            <div class="quiz-code">int dmg = 10 / 4;
+Console.WriteLine(dmg);</div>
+            <div class="quiz-options">
+              <label class="quiz-opt"><input type="radio" name="q3-3" value="a"> Bug in WriteLine</label>
+              <label class="quiz-opt"><input type="radio" name="q3-3" value="b"> Integer division truncates</label>
+              <label class="quiz-opt"><input type="radio" name="q3-3" value="c"> Need a semicolon</label>
+              <label class="quiz-opt"><input type="radio" name="q3-3" value="d"> 10/4 is actually 2</label>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+          <button class="btn btn-primary" onclick="checkQuiz(this)">Check answers (+15 XP if all correct)</button>
+        </div>
+
+        <div class="section">
+          <div class="section-header"><div class="section-icon">💻</div><h2>4. Missions</h2></div>
+
+          <div class="challenge-box" id="c31">
+            <h3>3.1 – Even Hit or Odd Miss</h3>
+            <p>Read a hit roll (int). If even → HIT, if odd → MISS. (Use % 2.)</p>
+            <div class="sample-out"><span class="lbl">Share-worthy output idea</span>Roll: 14
+HIT</div>
+            <div class="challenge-actions">
+              <a class="compiler-link" href="https://onecompiler.com/csharp" target="_blank">Open OneCompiler ↗</a>
+              <button class="starter-toggle" onclick="toggleStarter(this)">Show starter code</button>
+              <label class="done-check"><input type="checkbox" data-xp="40" onchange="markDone(this)"> Mark done (+40 XP)</label>
+            </div>
+            <div class="starter-body"><pre><code>using System;
+class Program {
+    static void Main() {
+        Console.Write("Roll: ");
+        int n = int.Parse(Console.ReadLine());
+        // TODO: even → HIT, odd → MISS
+    }
+}</code></pre></div>
+          </div>
+          <div class="challenge-box" id="c32">
+            <h3>3.2 – Streamer Tip Jar</h3>
+            <p>Tips are simple interest energy: SI = (P × R × T) / 100. Read P, R, T and print the tip boost.</p>
+            <div class="sample-out"><span class="lbl">Share-worthy output idea</span>P=100 R=10 T=2
+Boost: 20</div>
+            <div class="challenge-actions">
+              <a class="compiler-link" href="https://onecompiler.com/csharp" target="_blank">Open OneCompiler ↗</a>
+              <button class="starter-toggle" onclick="toggleStarter(this)">Show starter code</button>
+              <label class="done-check"><input type="checkbox" data-xp="40" onchange="markDone(this)"> Mark done (+40 XP)</label>
+            </div>
+            <div class="starter-body"><pre><code>using System;
+class Program {
+    static void Main() {
+        // TODO: read P,R,T doubles, print (P*R*T)/100
+    }
+}</code></pre></div>
+          </div>
+          <div class="challenge-box" id="c33">
+            <h3>3.3 – Season Reset Year</h3>
+            <p>Same rule as leap year: divisible by 4, not by 100 unless also by 400. Print RESET or NORMAL YEAR.</p>
+            <div class="sample-out"><span class="lbl">Share-worthy output idea</span>Year: 2024
+RESET</div>
+            <div class="challenge-actions">
+              <a class="compiler-link" href="https://onecompiler.com/csharp" target="_blank">Open OneCompiler ↗</a>
+              <button class="starter-toggle" onclick="toggleStarter(this)">Show starter code</button>
+              <label class="done-check"><input type="checkbox" data-xp="40" onchange="markDone(this)"> Mark done (+40 XP)</label>
+            </div>
+            <div class="starter-body"><pre><code>using System;
+class Program {
+    static void Main() {
+        Console.Write("Year: ");
+        int y = int.Parse(Console.ReadLine());
+        // TODO: leap rule → RESET or NORMAL YEAR
+    }
+}</code></pre></div>
+          </div>
+          <div class="challenge-box boss" id="c3b">
+            <h3><span class="boss-tag">BOSS</span> 3.B – Rock · Paper · Scissors Roll</h3>
+            <p>Boss: computer rolls 0/1/2 using a number you enter (n % 3). Map 0=Rock, 1=Paper, 2=Scissors and print it.</p>
+            <div class="sample-out"><span class="lbl">Share-worthy output idea</span>Seed: 10
+Computer plays: Paper</div>
+            <div class="challenge-actions">
+              <a class="compiler-link" href="https://onecompiler.com/csharp" target="_blank">Open OneCompiler ↗</a>
+              <button class="starter-toggle" onclick="toggleStarter(this)">Show starter code</button>
+              <label class="done-check"><input type="checkbox" data-xp="80" onchange="markDone(this)"> Mark done (+80 XP)</label>
+            </div>
+            <div class="starter-body"><pre><code>using System;
+class Program {
+    static void Main() {
+        Console.Write("Seed: ");
+        int n = int.Parse(Console.ReadLine());
+        int roll = n % 3;
+        // TODO: 0 Rock, 1 Paper, 2 Scissors
+    }
+}</code></pre></div>
+          </div>
+        </div>
+        <div class="section">
+          <div class="section-header"><div class="section-icon">✅</div><h2>5. Debriefs</h2></div>
+
+          <button class="solution-toggle" onclick="toggleSolution(this)">
+            Debrief 3.1
+            <span class="arrow">▼</span>
+          </button>
+          <div class="solution-body">
+            <div class="think-steps"><strong>Thinking steps</strong><ol><li>Parse roll.</li><li>If n%2==0 HIT else MISS.</li></ol></div>
+            <pre><code>using System;
+class Program {
+    static void Main() {
+        Console.Write("Roll: ");
+        int n = int.Parse(Console.ReadLine());
+        Console.WriteLine(n % 2 == 0 ? "HIT" : "MISS");
+    }
+}</code></pre>
+          </div>
+          <button class="solution-toggle" onclick="toggleSolution(this)">
+            Debrief 3.2
+            <span class="arrow">▼</span>
+          </button>
+          <div class="solution-body">
+            <div class="think-steps"><strong>Thinking steps</strong><ol><li>Read three doubles.</li><li>Compute (P*R*T)/100.</li><li>Print.</li></ol></div>
+            <pre><code>using System;
+class Program {
+    static void Main() {
+        Console.Write("P: "); double p = double.Parse(Console.ReadLine());
+        Console.Write("R: "); double r = double.Parse(Console.ReadLine());
+        Console.Write("T: "); double t = double.Parse(Console.ReadLine());
+        Console.WriteLine("Boost: " + (p * r * t) / 100);
+    }
+}</code></pre>
+          </div>
+          <button class="solution-toggle" onclick="toggleSolution(this)">
+            Debrief 3.3
+            <span class="arrow">▼</span>
+          </button>
+          <div class="solution-body">
+            <div class="think-steps"><strong>Thinking steps</strong><ol><li>Leap rule with % && ||.</li><li>Print RESET or NORMAL YEAR.</li></ol></div>
+            <pre><code>using System;
+class Program {
+    static void Main() {
+        Console.Write("Year: ");
+        int y = int.Parse(Console.ReadLine());
+        bool reset = (y % 4 == 0 && y % 100 != 0) || (y % 400 == 0);
+        Console.WriteLine(reset ? "RESET" : "NORMAL YEAR");
+    }
+}</code></pre>
+          </div>
+          <button class="solution-toggle" onclick="toggleSolution(this)">
+            Debrief 3.B Boss
+            <span class="arrow">▼</span>
+          </button>
+          <div class="solution-body">
+            <div class="think-steps"><strong>Thinking steps</strong><ol><li>roll = n % 3.</li><li>if/else or switch to name the move.</li></ol></div>
+            <pre><code>using System;
+class Program {
+    static void Main() {
+        Console.Write("Seed: ");
+        int roll = int.Parse(Console.ReadLine()) % 3;
+        string move = roll == 0 ? "Rock" : roll == 1 ? "Paper" : "Scissors";
+        Console.WriteLine("Computer plays: " + move);
+    }
+}</code></pre>
+          </div>
+        </div>
+        <div class="week-nav">
+          <button class="btn btn-outline" onclick="showWeek(2)">← Mission 2</button>
+          <button class="btn btn-primary" onclick="showWeek(4)">Mission 4 →</button>
+        </div>
+      </div>
+
+      <div class="week-view" id="week-4">
+        <h1>Mission 4 – Chat &amp; Tags</h1>
+        <p class="week-subtitle">Esports tags, hype meters, word flips — strings that feel useful.</p>
+        <div class="mission-tag">Studio task · Player identity tools</div>
+
+        <div class="section">
+          <div class="section-header"><div class="section-icon">▶️</div><h2>1. Briefing video</h2></div>
+          <div class="video-player">
+            <video controls preload="metadata"><source src="videos/week4.mp4" type="video/mp4" /></video>
+            <div class="video-meta">
+              <span>Kapilearn · Mission 4</span>
+              <button class="listen-btn" onclick="toggleSpeech(this, 'week4')">🔊 Also listen</button>
+            </div>
+          </div>
+          <div class="script-box">
+            <div class="label">Briefing notes</div>
+            <p>Strings are beads on a necklace — index 0 is the first bead. <code>$"Hi {name}"</code> is the clean way to build text. <code>ToUpper()</code> doesn’t yell at the original; it clones a shouty twin.</p>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-header"><div class="section-icon">📖</div><h2>2. Loadout</h2></div>
+          <div class="theory-content">
+            <div class="py-bridge">
+              <div class="label">From Python → C#</div>
+              <table>
+                <tr><th>Python</th><th>C#</th></tr>
+                <tr><td><code>name.upper()</code></td><td><code>name.ToUpper()</code></td></tr>
+                <tr><td><code>f"Hi {name}"</code></td><td><code>$"Hi {name}"</code></td></tr>
+                <tr><td><code>s.split()</code></td><td><code>s.Split(' ')</code></td></tr>
+              </table>
+            </div>
+            <table>
+              <thead><tr><th>Tool</th><th>Code</th></tr></thead>
+              <tbody>
+                <tr><td>Length</td><td><code>s.Length</code></td></tr>
+                <tr><td>Upper / Lower</td><td><code>s.ToUpper()</code></td></tr>
+                <tr><td>Trim</td><td><code>s.Trim()</code></td></tr>
+                <tr><td>Contains</td><td><code>s.Contains("x")</code></td></tr>
+                <tr><td>Split</td><td><code>s.Split(' ')</code></td></tr>
+                <tr><td>Empty check</td><td><code>string.IsNullOrEmpty(s)</code></td></tr>
+              </tbody>
+            </table>
+            <div class="mistake">
+              <div class="label">Common mistake</div>
+              Forgetting index 0 is the first character, or assuming <code>ToUpper()</code> changes the original string in place. It doesn’t.
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-header"><div class="section-icon">❓</div><h2>3. Quick checks</h2></div>
+          <div class="quiz-question" data-correct="b" data-explain="Interpolation with $ is the modern, readable way.">
+            <div class="quiz-q">1. Preferred way to embed a name in text?</div>
+            <div class="quiz-options">
+              <label class="quiz-opt"><input type="radio" name="q4-1" value="a"> <code>"Hi " + name</code></label>
+              <label class="quiz-opt"><input type="radio" name="q4-1" value="b"> <code>$"Hi {name}"</code></label>
+              <label class="quiz-opt"><input type="radio" name="q4-1" value="c"> <code>"Hi %s" % name</code></label>
+              <label class="quiz-opt"><input type="radio" name="q4-1" value="d"> <code>String.Add(name)</code></label>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+          <div class="quiz-question" data-correct="c" data-explain="ToUpper returns HELLO. Original s is still hello, but we print the new string.">
+            <div class="quiz-tag predict">Predict</div>
+            <div class="quiz-q">2. What prints?</div>
+            <div class="quiz-code">string s = "hello";
+Console.WriteLine(s.ToUpper());</div>
+            <div class="quiz-options">
+              <label class="quiz-opt"><input type="radio" name="q4-2" value="a"> hello</label>
+              <label class="quiz-opt"><input type="radio" name="q4-2" value="b"> Hello</label>
+              <label class="quiz-opt"><input type="radio" name="q4-2" value="c"> HELLO</label>
+              <label class="quiz-opt"><input type="radio" name="q4-2" value="d"> Error</label>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+          <div class="quiz-question" data-correct="a" data-explain="s[0] is the first character. Changing s[0] = 'H' won't compile on a string the same way as a char array — strings are immutable. The bug framing: if someone tries to mutate in place, that's the mistake. Here the 'wrong' idea is treating string like a mutable array without care. Actually the classic bug is IndexOutOfRange or assuming 1-based. Let's say: Length is 5 so valid indexes are 0..4. s[5] would crash.">
+            <div class="quiz-tag bug">Bug hunt</div>
+            <div class="quiz-q">3. Why might this explode?</div>
+            <div class="quiz-code">string tag = "NOVA";
+char c = tag[4];</div>
+            <div class="quiz-options">
+              <label class="quiz-opt"><input type="radio" name="q4-3" value="a"> Index 4 is past the last character (0–3)</label>
+              <label class="quiz-opt"><input type="radio" name="q4-3" value="b"> tag should be int</label>
+              <label class="quiz-opt"><input type="radio" name="q4-3" value="c"> Missing semicolon</label>
+              <label class="quiz-opt"><input type="radio" name="q4-3" value="d"> ToUpper was required</label>
+            </div>
+            <div class="quiz-feedback"></div>
+          </div>
+          <button class="btn btn-primary" onclick="checkQuiz(this)">Check answers (+15 XP if all correct)</button>
+        </div>
+
+        <div class="section">
+          <div class="section-header"><div class="section-icon">💻</div><h2>4. Missions</h2></div>
+
+          <div class="challenge-box" id="c41">
+            <h3>4.1 – Esports Tag Formatter</h3>
+            <p>Read first + last name. Print LAST, First (last all caps, first capitalised) — lobby style.</p>
+            <div class="sample-out"><span class="lbl">Share-worthy output idea</span>LEE, Mira</div>
+            <div class="challenge-actions">
+              <a class="compiler-link" href="https://onecompiler.com/csharp" target="_blank">Open OneCompiler ↗</a>
+              <button class="starter-toggle" onclick="toggleStarter(this)">Show starter code</button>
+              <label class="done-check"><input type="checkbox" data-xp="40" onchange="markDone(this)"> Mark done (+40 XP)</label>
+            </div>
+            <div class="starter-body"><pre><code>using System;
+class Program {
+    static void Main() {
+        Console.Write("First name: ");
+        string first = Console.ReadLine().Trim();
+        Console.Write("Last name: ");
+        string last = Console.ReadLine().Trim();
+        // TODO: LAST, First
+    }
+}</code></pre></div>
+          </div>
+          <div class="challenge-box" id="c42">
+            <h3>4.2 – Chat Hype Meter</h3>
+            <p>Count vowels (a,e,i,o,u) in a message — case insensitive. More vowels = more hype. Print the count.</p>
+            <div class="sample-out"><span class="lbl">Share-worthy output idea</span>Msg: let's gooo team
+Hype vowels: 6</div>
+            <div class="challenge-actions">
+              <a class="compiler-link" href="https://onecompiler.com/csharp" target="_blank">Open OneCompiler ↗</a>
+              <button class="starter-toggle" onclick="toggleStarter(this)">Show starter code</button>
+              <label class="done-check"><input type="checkbox" data-xp="40" onchange="markDone(this)"> Mark done (+40 XP)</label>
+            </div>
+            <div class="starter-body"><pre><code>using System;
+class Program {
+    static void Main() {
+        Console.Write("Msg: ");
+        string s = Console.ReadLine().ToLower();
+        // TODO: count vowels, print
+    }
+}</code></pre></div>
+          </div>
+          <div class="challenge-box" id="c43">
+            <h3>4.3 – Reverse the Hype</h3>
+            <p>Split a sentence into words and print them last-word-first (dramatic reveal energy).</p>
+            <div class="sample-out"><span class="lbl">Share-worthy output idea</span>Input: we are so back
+Output: back so are we</div>
+            <div class="challenge-actions">
+              <a class="compiler-link" href="https://onecompiler.com/csharp" target="_blank">Open OneCompiler ↗</a>
+              <button class="starter-toggle" onclick="toggleStarter(this)">Show starter code</button>
+              <label class="done-check"><input type="checkbox" data-xp="40" onchange="markDone(this)"> Mark done (+40 XP)</label>
+            </div>
+            <div class="starter-body"><pre><code>using System;
+class Program {
+    static void Main() {
+        Console.Write("Input: ");
+        // TODO: Split, Reverse, Join
+    }
+}</code></pre></div>
+          </div>
+          <div class="challenge-box boss" id="c4b">
+            <h3><span class="boss-tag">BOSS</span> 4.B – Chat Censor</h3>
+            <p>Boss: read a message and a banned word. Replace the banned word with *** and print the cleaned chat.</p>
+            <div class="sample-out"><span class="lbl">Share-worthy output idea</span>Msg: that was so toxic
+Ban: toxic
+Clean: that was so ***</div>
+            <div class="challenge-actions">
+              <a class="compiler-link" href="https://onecompiler.com/csharp" target="_blank">Open OneCompiler ↗</a>
+              <button class="starter-toggle" onclick="toggleStarter(this)">Show starter code</button>
+              <label class="done-check"><input type="checkbox" data-xp="80" onchange="markDone(this)"> Mark done (+80 XP)</label>
+            </div>
+            <div class="starter-body"><pre><code>using System;
+class Program {
+    static void Main() {
+        Console.Write("Msg: ");
+        string msg = Console.ReadLine();
+        Console.Write("Ban: ");
+        string ban = Console.ReadLine();
+        // TODO: Replace ban with ***
+    }
+}</code></pre></div>
+          </div>
+        </div>
+        <div class="section">
+          <div class="section-header"><div class="section-icon">✅</div><h2>5. Debriefs</h2></div>
+
+          <button class="solution-toggle" onclick="toggleSolution(this)">
+            Debrief 4.1
+            <span class="arrow">▼</span>
+          </button>
+          <div class="solution-body">
+            <div class="think-steps"><strong>Thinking steps</strong><ol><li>Trim names.</li><li>Upper last.</li><li>Capitalise first letter of first.</li><li>Print LAST, First.</li></ol></div>
+            <pre><code>using System;
+class Program {
+    static void Main() {
+        Console.Write("First name: ");
+        string first = Console.ReadLine().Trim();
+        Console.Write("Last name: ");
+        string last = Console.ReadLine().Trim();
+        string f = char.ToUpper(first[0]) + first.Substring(1).ToLower();
+        Console.WriteLine($"{last.ToUpper()}, {f}");
+    }
+}</code></pre>
+          </div>
+          <button class="solution-toggle" onclick="toggleSolution(this)">
+            Debrief 4.2
+            <span class="arrow">▼</span>
+          </button>
+          <div class="solution-body">
+            <div class="think-steps"><strong>Thinking steps</strong><ol><li>ToLower the message.</li><li>Loop chars.</li><li>Count aeiou.</li><li>Print.</li></ol></div>
+            <pre><code>using System;
+class Program {
+    static void Main() {
+        Console.Write("Msg: ");
+        string s = Console.ReadLine().ToLower();
+        int hype = 0;
+        foreach (char c in s)
+            if ("aeiou".Contains(c)) hype++;
+        Console.WriteLine("Hype vowels: " + hype);
+    }
+}</code></pre>
+          </div>
+          <button class="solution-toggle" onclick="toggleSolution(this)">
+            Debrief 4.3
+            <span class="arrow">▼</span>
+          </button>
+          <div class="solution-body">
+            <div class="think-steps"><strong>Thinking steps</strong><ol><li>Split on spaces.</li><li>Array.Reverse.</li><li>Join and print.</li></ol></div>
+            <pre><code>using System;
+class Program {
+    static void Main() {
+        Console.Write("Input: ");
+        string[] words = Console.ReadLine().Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        Array.Reverse(words);
+        Console.WriteLine(string.Join(" ", words));
+    }
+}</code></pre>
+          </div>
+          <button class="solution-toggle" onclick="toggleSolution(this)">
+            Debrief 4.B Boss
+            <span class="arrow">▼</span>
+          </button>
+          <div class="solution-body">
+            <div class="think-steps"><strong>Thinking steps</strong><ol><li>Read msg and ban.</li><li>Replace ban with ***.</li><li>Print cleaned line.</li></ol></div>
+            <pre><code>using System;
+class Program {
+    static void Main() {
+        Console.Write("Msg: ");
+        string msg = Console.ReadLine();
+        Console.Write("Ban: ");
+        string ban = Console.ReadLine();
+        Console.WriteLine("Clean: " + msg.Replace(ban, "***"));
+    }
+}</code></pre>
+          </div>
+        </div>
+        <div class="week-nav">
+          <button class="btn btn-outline" onclick="showWeek(3)">← Mission 3</button>
+          <button class="btn btn-primary" onclick="showWeek(0)">Back to HQ</button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const scripts = {
+      week1: `C sharp is the strict teacher who wants the full sentence. Every program walks through a door called Main. Console is your chat window with the player. Write Line talks. Read Line listens. Forget a semicolon and C sharp just stares at you.`,
+      week2: `Variables are labelled boxes. C sharp wants to know what is inside. Try Parse is your crash helmet for user input. Use decimal for money. Double is fine for science — less fine for shop prices.`,
+      week3: `Percent means remainder, not percent. Ten divided by four is two when both are ints — C sharp ate the point five. Use brackets when precedence gets spicy.`,
+      week4: `Strings are beads on a necklace — index zero is the first bead. Dollar quote Hi name is the clean way to build text. To Upper does not yell at the original; it clones a shouty twin.`
+    };
+
+    let xp = 0;
+    const ranks = [
+      { min: 0, name: 'Newbie' },
+      { min: 80, name: 'Console Cadet' },
+      { min: 200, name: 'Type Titan' },
+      { min: 360, name: 'String Samurai' },
+      { min: 500, name: 'Studio Lead' }
+    ];
+    const maxXp = 560;
+
+    function updateXpUI() {
+      const pct = Math.min(100, (xp / maxXp) * 100);
+      document.getElementById('xp-fill').style.width = pct + '%';
+      document.getElementById('xp-text').textContent = xp + ' XP';
+      let rank = ranks[0].name;
+      for (const r of ranks) if (xp >= r.min) rank = r.name;
+      document.getElementById('rank-badge').textContent = rank;
+    }
+
+    function addXp(amount) {
+      xp += amount;
+      updateXpUI();
+      const toast = document.getElementById('xp-toast');
+      document.getElementById('xp-toast-amt').textContent = amount;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 1800);
+      try { localStorage.setItem('kapi_xp', xp); } catch(e) {}
+    }
+
+    function showWeek(n) {
+      if (window.speechSynthesis) speechSynthesis.cancel();
+      document.querySelectorAll('.listen-btn').forEach(b => {
+        b.classList.remove('playing'); b.textContent = '🔊 Also listen';
+      });
+      document.querySelectorAll('video').forEach(v => v.pause());
+      document.querySelectorAll('.week-view').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+      document.getElementById('week-' + n).classList.add('active');
+      document.querySelector('.nav-item[data-week="' + n + '"]').classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function toggleSpeech(btn, key) {
+      if (!window.speechSynthesis) { alert('Speech not supported — read the briefing notes instead.'); return; }
+      if (btn.classList.contains('playing')) {
+        speechSynthesis.cancel();
+        btn.classList.remove('playing'); btn.textContent = '🔊 Also listen'; return;
+      }
+      speechSynthesis.cancel();
+      document.querySelectorAll('.listen-btn').forEach(b => { b.classList.remove('playing'); b.textContent = '🔊 Also listen'; });
+      const utter = new SpeechSynthesisUtterance(scripts[key]);
+      utter.rate = 0.92;
+      const voices = speechSynthesis.getVoices();
+      const preferred = voices.find(v => v.lang.startsWith('en') && (v.name.includes('Female') || v.name.includes('Google') || v.name.includes('Sonia')));
+      if (preferred) utter.voice = preferred;
+      btn.classList.add('playing'); btn.textContent = '⏹ Stop';
+      utter.onend = utter.onerror = () => { btn.classList.remove('playing'); btn.textContent = '🔊 Also listen'; };
+      speechSynthesis.speak(utter);
+    }
+    if (window.speechSynthesis) speechSynthesis.onvoiceschanged = () => {};
+
+    function toggleSolution(btn) {
+      btn.classList.toggle('open');
+      btn.nextElementSibling.classList.toggle('open');
+    }
+    function toggleStarter(btn) {
+      const body = btn.parentElement.nextElementSibling;
+      body.classList.toggle('open');
+      btn.textContent = body.classList.contains('open') ? 'Hide starter code' : 'Show starter code';
+    }
+    function markDone(cb) {
+      const label = cb.parentElement;
+      const amount = parseInt(cb.dataset.xp || '40', 10);
+      if (cb.checked) {
+        label.classList.add('done');
+        if (!cb.dataset.awarded) { addXp(amount); cb.dataset.awarded = '1'; }
+      } else {
+        label.classList.remove('done');
+      }
+    }
+
+    function checkQuiz(btn) {
+      const section = btn.closest('.section');
+      let allCorrect = true; let answered = 0;
+      section.querySelectorAll('.quiz-question').forEach(q => {
+        const correct = q.dataset.correct;
+        const explain = q.dataset.explain || '';
+        const selected = q.querySelector('input:checked');
+        const feedback = q.querySelector('.quiz-feedback');
+        const opts = q.querySelectorAll('.quiz-opt');
+        opts.forEach(o => o.classList.remove('correct', 'wrong'));
+        if (!selected) {
+          feedback.innerHTML = '<strong>Pick an answer.</strong>';
+          feedback.className = 'quiz-feedback show bad';
+          allCorrect = false; return;
+        }
+        answered++;
+        opts.forEach(o => {
+          const val = o.querySelector('input').value;
+          if (val === correct) o.classList.add('correct');
+          if (o.querySelector('input').checked && val !== correct) o.classList.add('wrong');
+        });
+        if (selected.value === correct) {
+          feedback.innerHTML = '<strong>✓ Correct!</strong>' + explain;
+          feedback.className = 'quiz-feedback show ok';
+        } else {
+          feedback.innerHTML = '<strong>✗ Not quite.</strong>' + explain;
+          feedback.className = 'quiz-feedback show bad';
+          allCorrect = false;
+        }
+      });
+      if (allCorrect && answered >= 3 && !btn.dataset.awarded) {
+        addXp(15);
+        btn.dataset.awarded = '1';
+      }
+    }
+
+    // restore XP
+    try {
+      const saved = parseInt(localStorage.getItem('kapi_xp') || '0', 10);
+      if (saved > 0) { xp = saved; updateXpUI(); }
+    } catch(e) {}
+    updateXpUI();
+  </script>
+</body>
+</html>
